@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: argocd-repo-creds-https-creds
+    namespace: argo
+    labels:
+        app.kubernetes.io/instance: argo-cd
+        app.kubernetes.io/part-of: argocd
+        argocd.argoproj.io/secret-type: repo-creds
+type: Opaque
+data:
+    password: ''
+    url: ''
+    username: ''
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: ""
+    mac:
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3
+---
+apiVersion: v1
+kind: Secret
+metadata:
+    name: argocd-repo-creds-helm-creds
+    namespace: argo
+    labels:
+        app.kubernetes.io/instance: argo-cd
+        app.kubernetes.io/part-of: argocd
+        argocd.argoproj.io/secret-type: repo-creds
+type: Opaque
+data:
+    password: ''
+    url: ''
+    username: ''
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: ""
+    mac: ''
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3
