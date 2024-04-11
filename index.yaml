@@ -1,0 +1,48 @@
+apiVersion: v1
+entries:
+  base-chart:
+  - apiVersion: v2
+    created: "2024-04-11T01:16:13.683709814Z"
+    description: A base chart that will be used for other service charts
+    digest: bd41e16d90590d313d133998e00cf7d54065fa78ecbe503440ff577ac25b61fb
+    maintainers:
+    - email: phucpham1301@gmail.com
+      name: Hoang Phuc Pham - UQ
+    name: base-chart
+    type: library
+    urls:
+    - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/base-chart-0.1.0.tgz
+    version: 0.1.0
+  vault:
+  - apiVersion: v2
+    created: "2024-04-11T01:16:13.686303853Z"
+    dependencies:
+    - name: base-chart
+      repository: file://../base-chart
+      version: 0.1.0
+    description: A Helm chart for Vault Secrets
+    digest: e9c804e62f3aee8b014fc12d38fc9f0eda8da5621631f9511bf3e997ed3af0c6
+    home: https://www.vaultproject.io
+    icon: https://github.com/hashicorp/vault/raw/f22d202cde2018f9455dec755118a9b84586e082/Vault_PrimaryLogo_Black.png
+    keywords:
+    - vault
+    - security
+    - encryption
+    - secrets
+    - management
+    - automation
+    - infrastructure
+    maintainers:
+    - email: phucpham1301@gmail.com
+      name: Hoang Phuc Pham - UQ
+    name: vault
+    sources:
+    - https://github.com/hashicorp/vault
+    - https://github.com/hashicorp/vault-helm
+    - https://github.com/hashicorp/vault-k8s
+    - https://github.com/hashicorp/vault-csi-provider
+    type: application
+    urls:
+    - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/vault-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-04-11T01:16:13.68318002Z"
