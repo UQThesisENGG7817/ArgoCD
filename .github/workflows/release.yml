@@ -31,8 +31,8 @@ jobs:
       - name: Package Helm Charts
         shell: bash
         run: |
-          find src/charts/ -type f -name 'Chart.yaml' | sed -r 's|/[^/]+$||' | sort | uniq | xargs -L 1 helm dep up
-          for d in src/charts/*/ ; do
+          find src/ -type f -name 'Chart.yaml' | sed -r 's|/[^/]+$||' | sort | uniq | xargs -L 1 helm dep up
+          for d in src/*/ ; do
               echo "$d"
               helm package "$d" -u -d dest
           done
