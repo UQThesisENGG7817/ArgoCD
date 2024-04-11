@@ -1,0 +1,27 @@
+{{- define "base-chart.peer-authentication" -}}
+{{- if .Values.istiomTLS.enabled -}}
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "base-chart.selectorLabels" . | nindent 6 }}
+  mtls:
+    mode: {{ .Values.istiomTLS.mode }}
+  {{- if .Values.istiomTLS.portLevelMtls }}
+  portLevelMtls:
+    {{- range $key, $value := .Values.istiomTLS.portLevelMtls }}
+    {{ $key }}:
+      mode: {{ $value }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

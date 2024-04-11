@@ -1,0 +1,93 @@
+{{- define "base-chart.network-policies" -}}
+{{- if .Values.networkPolicies.enabled -}}
+apiVersion: {{ include "base-chart.apiVersion.ingress" . }}
+kind: NetworkPolicy
+metadata:
+  name: {{ include "base-chart.fullname" . }}-default
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "base-chart.selectorLabels" . | nindent 6 }}
+  {{- if or .Values.networkPolicies.default.ingress .Values.networkPolicies.default.egress }}
+  policyTypes:
+    {{- if .Values.networkPolicies.default.ingress }}
+    - Ingress
+    {{- end }}
+    {{- if .Values.networkPolicies.default.egress }}
+    - Egress
+    {{- end }}
+  {{- if .Values.networkPolicies.default.ingress }}
+  ingress:
+    - from:
+        - podSelector: {}
+    {{- range .Values.networkPolicies.default.ingress }}
+    - from:
+        - {{ with .namespace -}} 
+          namespaceSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{ with .pod -}} 
+          podSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+    {{- end -}}
+  {{- end }}
+  {{- if .Values.networkPolicies.default.egress }}
+  egress:
+    {{- range .Values.networkPolicies.default.egress }}
+    - from:
+        - {{ with .namespace -}} 
+          namespaceSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{ with .pod -}} 
+          podSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+    {{- end -}}
+  {{- end }}
+  {{- end }}
+{{- end }}
+---
+{{- if and .Values.networkPolicies.enabled .Values.networkPolicies.custom -}}
+apiVersion: {{ include "base-chart.apiVersion.ingress" . }}
+kind: NetworkPolicy
+metadata:
+  name: {{ include "base-chart.fullname" . }}-custom
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "base-chart.selectorLabels" . | nindent 6 }}
+  {{- if or .Values.networkPolicies.custom.ingress .Values.networkPolicies.custom.egress }}
+  policyTypes:
+    {{- if .Values.networkPolicies.custom.ingress }}
+    - Ingress
+    {{- end }}
+    {{- if .Values.networkPolicies.custom.egress }}
+    - Egress
+    {{- end }}
+  {{- with .Values.networkPolicies.custom.ingress }}
+  ingress:
+    - from:
+        - podSelector: {}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.networkPolicies.custom.egress }}
+  egress:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,8 @@
+apiVersion: v2
+name: base-chart
+description: A base chart that will be used for other service charts
+version: 0.1.0
+type: library
+maintainers:
+  - name: Hoang Phuc Pham - UQ
+    email: phucpham1301@gmail.com

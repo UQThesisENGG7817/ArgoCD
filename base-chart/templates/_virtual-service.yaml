@@ -1,0 +1,125 @@
+{{- define "base-chart.virtual-service" -}}
+{{- if .Values.istioIngress.enabled -}}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+  {{- with .Values.istioIngress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  gateways:
+    - {{ .Values.istioIngress.gateway.namespace }}/{{ .Values.istioIngress.gateway.name }}
+  {{- if .Values.istioIngress.hosts }}
+  hosts:
+    {{- range $val := .Values.istioIngress.hosts }}
+    - {{ $val }}
+    {{- end }}
+  {{- end }}
+  http:
+    - name: {{ include "base-chart.fullname" . }}-{{ .Values.service.name }}
+      {{- with .Values.istioIngress.match }}
+      match:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.istioIngress.rewrite }}
+      rewrite:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      route:
+        - destination:
+            host: {{ include "base-chart.fullname" . }}.{{ include "base-chart.namespace" . }}.svc.cluster.local
+            port:
+              number: {{ .Values.service.port }}
+          weight: 100
+        {{- if .Values.argoRollouts.strategy.canary }}
+        - destination:
+            host: {{ include "base-chart.fullname" . }}-preview.{{ include "base-chart.namespace" . }}.svc.cluster.local
+            port:
+              number: {{ .Values.service.port }}
+          weight: 0
+        {{- end }}
+      headers:
+        request:
+          set:
+            x-forwarded-proto: https
+            x-forwarded-port: "443"
+      {{- with .Values.istioIngress.corsPolicy }}
+      corsPolicy:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- with .Values.istioIngress.extraTcp }}
+  tcp: 
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.istioIngress.extraTls }}
+  tls: 
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+{{- if and .Values.argoRollouts.enabled .Values.argoRollouts.previewHosts }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "base-chart.fullname" . }}-preview
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+  {{- with .Values.istioIngress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  gateways:
+    - {{ .Values.istioIngress.gateway.namespace }}/{{ .Values.istioIngress.gateway.name }}
+  {{- if .Values.argoRollouts.previewHosts }}
+  hosts:
+    {{- range $val := .Values.argoRollouts.previewHosts }}
+    - {{ $val }}
+    {{- end }}
+  {{- end }}
+  http:
+    - name: {{ include "base-chart.fullname" . }}-{{ .Values.service.name }}
+      {{- with .Values.istioIngress.match }}
+      match:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.istioIngress.rewrite }}
+      rewrite:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      route:
+        - destination:
+            host: {{ include "base-chart.fullname" . }}-preview.{{ include "base-chart.namespace" . }}.svc.cluster.local
+            port:
+              number: {{ .Values.service.port }}
+      headers:
+        request:
+          set:
+            x-forwarded-proto: https
+            x-forwarded-port: "443"
+      {{- with .Values.istioIngress.corsPolicy }}
+      corsPolicy:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- with .Values.istioIngress.extraTcp }}
+  tcp: 
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.istioIngress.extraTls }}
+  tls: 
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

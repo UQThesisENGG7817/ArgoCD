@@ -1,0 +1,87 @@
+{{- define "base-chart.rollouts-service" -}}
+{{- if .Values.argoRollouts.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: {{ .Values.service.name }}
+      port: {{ .Values.service.port }}
+      protocol: {{ .Values.service.protocol }}
+      {{- if .Values.service.appProtocol }}
+      appProtocol: {{ .Values.service.appProtocol }}
+      {{- end }}
+      targetPort: {{ .Values.service.targetPort }}
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+    {{- range $val := .Values.service.extraPorts }}
+    - name: {{ $val.name }}
+      port: {{ $val.port }}
+      protocol: {{ $val.protocol }}
+      targetPort: {{ $val.targetPort }}
+      {{- if $val.appProtocol }}
+      appProtocol: {{ $val.appProtocol }}
+      {{- end }}
+      {{- if eq $val.type "NodePort" }}
+      nodePort: {{ $val.nodePort }}
+      {{- end }}
+    {{- end }}
+  selector:
+    {{- include "base-chart.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base-chart.fullname" . }}-preview
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: {{ .Values.service.name }}
+      port: {{ .Values.service.port }}
+      protocol: {{ .Values.service.protocol }}
+      {{- if .Values.service.appProtocol }}
+      appProtocol: {{ .Values.service.appProtocol }}
+      {{- end }}
+      targetPort: {{ .Values.service.targetPort }}
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+    {{- range $val := .Values.service.extraPorts }}
+    - name: {{ $val.name }}
+      port: {{ $val.port }}
+      protocol: {{ $val.protocol }}
+      {{- if $val.appProtocol }}
+      appProtocol: {{ $val.appProtocol }}
+      {{- end }}
+      targetPort: {{ $val.targetPort }}
+      {{- if eq $val.type "NodePort" }}
+      nodePort: {{ $val.nodePort }}
+      {{- end }}
+    {{- end }}
+  selector:
+    {{- include "base-chart.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- end }}

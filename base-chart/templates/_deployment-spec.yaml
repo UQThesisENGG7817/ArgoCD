@@ -1,0 +1,184 @@
+{{- define "deployment-spec" -}}
+{{- if not .Values.autoscaling.enabled }}
+replicas: {{ .Values.replicaCount }}
+{{- end }}
+revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+selector:
+  matchLabels:
+    {{- include "base-chart.selectorLabels" . | nindent 4 }}
+template:
+  metadata:
+    annotations:
+      # checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
+    labels:
+      {{- with .Values.additionalLabels }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.podLabels }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- if .Values.datadogLabels.enabled }}
+      admission.datadoghq.com/enabled: "{{ .Values.datadogLabels.admissionEnabled }}"
+      tags.datadoghq.com/env: "{{ .Values.datadogLabels.env }}"
+      tags.datadoghq.com/service: "{{ .Values.datadogLabels.service }}"
+      tags.datadoghq.com/version: "{{ .Values.image.tag }}"
+      {{- end }}
+      {{- include "base-chart.labels" . | nindent 6 }}
+  spec:
+    {{- with .Values.hostAliases }}
+    hostAliases:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.schedulerName }}
+    schedulerName: {{ . }}
+    {{- end }}
+    {{- with .Values.imagePullSecrets }}
+    imagePullSecrets:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    serviceAccountName: {{ include "base-chart.serviceAccountName" . }}
+    {{- with .Values.podSecurityContext }}
+    securityContext:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.terminationGracePeriodSeconds }}
+    terminationGracePeriodSeconds: {{ . }}
+    {{- end }}
+    containers:
+      - name: {{ .Chart.Name }}
+        {{- with .Values.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.args }}
+        command:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if or .Values.env .Values.extraEnv .Values.jvm }}
+        env:
+          {{- if .Values.jvm }}
+          - name: JAVA_TOOL_OPTIONS
+            value: {{ include "base-chart.javaToolOptions.memory" . }} {{ include "base-chart.javaToolOptions.others" . }}
+          {{- end }}
+          {{- with .Values.env }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- range $key, $val := .Values.extraEnv }}
+          - name: {{ $key }}
+            value: {{ $val | quote }}
+          {{- end }}
+        {{- end }}
+        {{- if or .Values.envFrom .Values.secretCsi.enabled .Values.externalSecret.enabled }}
+        envFrom:
+          {{- with .Values.envFrom }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- if .Values.secretCsi.enabled }}
+          - secretRef:
+              name: {{ include "base-chart.fullname" . }}-secret-csi
+          {{- end }}
+          {{- if .Values.externalSecret.enabled }}
+          - secretRef:
+              name: {{ include "base-chart.fullname" . }}-external-secret
+          {{- end }}
+        {{- end }}
+        {{- with .Values.ports }}
+        ports:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if or .Values.volumeMounts .Values.configMount .Values.secretMount .Values.secretCsi.enabled }}
+        volumeMounts:
+          {{- with .Values.volumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- range $val := .Values.configMount }}
+          - name: config-volume
+            {{- toYaml $val | nindent 12 }}
+          {{- end }}
+          {{- range $val := .Values.secretMount }}
+          - name: secret-volume
+            {{- toYaml $val | nindent 12 }}
+          {{- end }}
+          {{- if .Values.secretCsi.enabled }}
+          - name: secrets-store-inline
+            mountPath: "/mnt/secrets-store"
+          {{- end }}
+        {{- end }}
+        {{- with .Values.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.lifecycle }}
+        lifecycle:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.containerSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+    {{- with .Values.extraContainers }}
+      {{- tpl (toYaml .) $ | nindent 6 }}
+    {{- end }}
+    {{- with .Values.initContainers }}
+    initContainers:
+      {{- tpl (toYaml .) $ | nindent 6 }}
+    {{- end }}
+    {{- if or .Values.volumes .Values.config .Values.secret .Values.secretCsi.enabled }}
+    volumes:
+      {{- with .Values.volumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- if .Values.config }}
+      - name: config-volume
+        configMap:
+          name: {{ include "base-chart.fullname" . }}
+          optional: true
+      {{- end }}
+      {{- if .Values.secret }}
+      - name: secret-volume
+        secret:
+          secretName: {{ include "base-chart.fullname" . }}
+          optional: true
+      {{- end }}
+      {{- if .Values.secretCsi.enabled }}
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: {{ include "base-chart.fullname" . }}
+      {{- end }}
+    {{- end }}
+    {{- with .Values.nodeSelector }}
+    nodeSelector:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with include "base-chart.affinity" . }}
+    affinity:
+      {{- trim . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+    tolerations:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.priorityClassName }}
+    priorityClassName: {{ . }}
+    {{- end }}
+{{- end }}

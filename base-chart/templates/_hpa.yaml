@@ -1,0 +1,50 @@
+{{- define "base-chart.hpa" -}}
+{{- if .Values.autoscaling.enabled }}
+apiVersion: {{ include "base-chart.apiVersion.autoscaling" . }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: {{ if .Values.argoRollouts.enabled }}argoproj.io/v1alpha1{{ else }}apps/v1{{ end }}
+    kind: {{ if .Values.argoRollouts.enabled }}Rollout{{ else }}Deployment{{ end }}
+    name: {{ include "base-chart.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    {{- with .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        {{- if eq (include "base-chart.apiVersion.autoscaling" $) "autoscaling/v2beta1" }}
+        targetAverageUtilization: {{ . }}
+        {{- else }}
+        target:
+          averageUtilization: {{ . }}
+          type: Utilization
+        {{- end }}
+    {{- end }}
+    {{- with .Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        {{- if eq (include "base-chart.apiVersion.autoscaling" $) "autoscaling/v2beta1" }}
+        targetAverageUtilization: {{ . }}
+        {{- else }}
+        target:
+          averageUtilization: {{ . }}
+          type: Utilization
+        {{- end }}
+    {{- end }}
+  {{- with .Values.autoscaling.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

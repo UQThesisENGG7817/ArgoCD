@@ -1,0 +1,51 @@
+{{- define "base-chart.rollouts" -}}
+{{- if .Values.argoRollouts.enabled -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  namespace: {{ include "base-chart.namespace" . }}
+  labels:
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.deploymentLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.datadogLabels.enabled }}
+    tags.datadoghq.com/env: "{{ .Values.datadogLabels.env }}"
+    tags.datadoghq.com/service: "{{ .Values.datadogLabels.service }}"
+    tags.datadoghq.com/version: "{{ .Values.image.tag }}"
+    {{- end }}
+    {{- include "base-chart.labels" . | nindent 4 }}
+  {{- with .Values.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- include "deployment-spec" . | trim | nindent 2 }}
+  {{- if .Values.argoRollouts.strategy }}
+  strategy:
+  {{- if .Values.argoRollouts.strategy.canary }}
+    canary:
+      {{- if .Values.istioIngress.enabled }}
+      stableService: {{ include "base-chart.fullname" . }}
+      canaryService: {{ include "base-chart.fullname" . }}-preview
+      trafficRouting:
+        istio:
+          virtualService:
+            name: {{ include "base-chart.fullname" . }}
+            routes:
+            - {{ include "base-chart.fullname" . }}-{{ .Values.service.name }}
+      {{- end }}
+      {{- toYaml .Values.argoRollouts.strategy.canary | nindent 6 }}
+  {{- end }}
+  {{- if .Values.argoRollouts.strategy.blueGreen }}
+    blueGreen: 
+      activeService: {{ include "base-chart.fullname" . }}
+      previewService: {{ include "base-chart.fullname" . }}-preview
+      {{- toYaml .Values.argoRollouts.strategy.blueGreen | nindent 6 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
