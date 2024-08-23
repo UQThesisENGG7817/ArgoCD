@@ -2,9 +2,9 @@ apiVersion: v1
 entries:
   base-chart:
   - apiVersion: v2
-    created: "2024-04-11T01:32:01.182022442Z"
+    created: "2024-08-23T13:49:49.365851913Z"
     description: A base chart that will be used for other service charts
-    digest: 26ed4e46b3471d5f2e6c3e2deebd8416b8c57601adf2d73dc7dff8becbdd6300
+    digest: 512782aa06e62ce8a2bef9e525397a460d8f0ada22e258e771c46b641c76321b
     maintainers:
     - email: phucpham1301@gmail.com
       name: Hoang Phuc Pham - UQ
@@ -13,15 +13,44 @@ entries:
     urls:
     - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/base-chart-0.1.0.tgz
     version: 0.1.0
+  trivy-operator:
+  - apiVersion: v2
+    created: "2024-08-23T13:49:49.368714313Z"
+    dependencies:
+    - name: trivy-operator
+      repository: https://aquasecurity.github.io/helm-charts
+      version: 0.23.3
+    description: This Chart deploys Trivy Operator to your cluster.
+    digest: e43d7d189c36893aded1a284eec79c03a75eae4c70684c8b66321c97e1f47016
+    name: trivy-operator
+    type: application
+    urls:
+    - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/trivy-operator-0.23.3.tgz
+    version: 0.23.3
+  trivy-operator-polr-adapter:
+  - apiVersion: v2
+    created: "2024-08-23T13:49:49.369612182Z"
+    dependencies:
+    - name: trivy-operator-polr-adapter
+      repository: https://fjogeleit.github.io/trivy-operator-polr-adapter
+      version: 0.8.0
+    description: This Chart deploys trivy-operator Policy Reporter Adapter to your
+      cluster.
+    digest: 1c69507fb48541869fd83942d6fa9514d33f74332a30442f0c163d3eb9f23ca9
+    name: trivy-operator-polr-adapter
+    type: application
+    urls:
+    - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/trivy-operator-polr-adapter-0.8.0.tgz
+    version: 0.8.0
   vault:
   - apiVersion: v2
-    created: "2024-04-11T01:32:01.184605115Z"
+    created: "2024-08-23T13:49:49.373398761Z"
     dependencies:
     - name: base-chart
       repository: file://../base-chart
       version: 0.1.0
     description: A Helm chart for Vault Secrets
-    digest: c9fd8503acb0434a00655734934b5575a8ed6884d0f3a344b91396ebca5eb9f1
+    digest: d07e835ce4c877cefa9158a27a2c6428e6702e52d2ec3a1689ff5ab5194b7b05
     home: https://www.vaultproject.io
     icon: https://github.com/hashicorp/vault/raw/f22d202cde2018f9455dec755118a9b84586e082/Vault_PrimaryLogo_Black.png
     keywords:
@@ -45,4 +74,4 @@ entries:
     urls:
     - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/vault-0.1.0.tgz
     version: 0.1.0
-generated: "2024-04-11T01:32:01.181541412Z"
+generated: "2024-08-23T13:49:49.365310787Z"
