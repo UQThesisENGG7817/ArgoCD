@@ -37,6 +37,3 @@ trivy-operator-polr-adapter:
       enabled: true
       timeout: 2
       applyLabels: []
-
-  nodeSelector:
-    nodegroup-role: main
