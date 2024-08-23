@@ -2,9 +2,9 @@ apiVersion: v1
 entries:
   base-chart:
   - apiVersion: v2
-    created: "2024-08-23T13:49:49.365851913Z"
+    created: "2024-08-23T15:05:04.353394087Z"
     description: A base chart that will be used for other service charts
-    digest: 512782aa06e62ce8a2bef9e525397a460d8f0ada22e258e771c46b641c76321b
+    digest: 346f9af4231c0a29c16d068d8aaeb924e7738a49f2445cc03fae7c341b78e92e
     maintainers:
     - email: phucpham1301@gmail.com
       name: Hoang Phuc Pham - UQ
@@ -13,15 +13,29 @@ entries:
     urls:
     - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/base-chart-0.1.0.tgz
     version: 0.1.0
+  policy-reporter:
+  - apiVersion: v2
+    created: "2024-08-23T15:05:04.356881308Z"
+    dependencies:
+    - name: policy-reporter
+      repository: https://kyverno.github.io/policy-reporter
+      version: 2.21.2
+    description: This Chart deploys Policy Reporter to your cluster.
+    digest: c281b12d640490126b0c173e7d5b99be555a929bac1017f994117965fba3fd9a
+    name: policy-reporter
+    type: application
+    urls:
+    - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/policy-reporter-2.21.2.tgz
+    version: 2.21.2
   trivy-operator:
   - apiVersion: v2
-    created: "2024-08-23T13:49:49.368714313Z"
+    created: "2024-08-23T15:05:04.360353492Z"
     dependencies:
     - name: trivy-operator
       repository: https://aquasecurity.github.io/helm-charts
       version: 0.23.3
     description: This Chart deploys Trivy Operator to your cluster.
-    digest: e43d7d189c36893aded1a284eec79c03a75eae4c70684c8b66321c97e1f47016
+    digest: 0b54afbfe64e75aca46c59411e42310b40f8e239826ad06abe2a190dfa000d58
     name: trivy-operator
     type: application
     urls:
@@ -29,14 +43,14 @@ entries:
     version: 0.23.3
   trivy-operator-polr-adapter:
   - apiVersion: v2
-    created: "2024-08-23T13:49:49.369612182Z"
+    created: "2024-08-23T15:05:04.361242825Z"
     dependencies:
     - name: trivy-operator-polr-adapter
       repository: https://fjogeleit.github.io/trivy-operator-polr-adapter
       version: 0.8.0
     description: This Chart deploys trivy-operator Policy Reporter Adapter to your
       cluster.
-    digest: 1c69507fb48541869fd83942d6fa9514d33f74332a30442f0c163d3eb9f23ca9
+    digest: 45e20bbfde3152db5ec86c7cedfd8b4d6d6df4bcb3c8c1cfddd80ff4a3963576
     name: trivy-operator-polr-adapter
     type: application
     urls:
@@ -44,13 +58,13 @@ entries:
     version: 0.8.0
   vault:
   - apiVersion: v2
-    created: "2024-08-23T13:49:49.373398761Z"
+    created: "2024-08-23T15:05:04.363723835Z"
     dependencies:
     - name: base-chart
       repository: file://../base-chart
       version: 0.1.0
     description: A Helm chart for Vault Secrets
-    digest: d07e835ce4c877cefa9158a27a2c6428e6702e52d2ec3a1689ff5ab5194b7b05
+    digest: 2d548a945e706e6006cbe5736bb2a9b9c1177f5302b06b6a325828355ed39ef9
     home: https://www.vaultproject.io
     icon: https://github.com/hashicorp/vault/raw/f22d202cde2018f9455dec755118a9b84586e082/Vault_PrimaryLogo_Black.png
     keywords:
@@ -74,4 +88,4 @@ entries:
     urls:
     - https://raw.githubusercontent.com/UQThesisENGG7817/helm-charts/gh-pages/vault-0.1.0.tgz
     version: 0.1.0
-generated: "2024-08-23T13:49:49.365310787Z"
+generated: "2024-08-23T15:05:04.352906505Z"
