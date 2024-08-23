@@ -1,0 +1,42 @@
+trivy-operator-polr-adapter: 
+  adapters:
+    vulnerabilityReports:
+      enabled: true
+      timeout: 2
+      # apply labels from the source report
+      applyLabels: []
+    configAuditReports:
+      enabled: true
+      timeout: 2
+      applyLabels: []
+    cisKubeBenchReports:
+      enabled: false
+      timeout: 2
+      applyLabels: []
+    complianceReports:
+      enabled: true
+      timeout: 2
+      applyLabels: []
+    rbacAssessmentReports:
+      enabled: true
+      timeout: 2
+      applyLabels: []
+    exposedSecretReports:
+      enabled: true
+      timeout: 2
+      applyLabels: []
+    infraAssessmentReports:
+      enabled: true
+      timeout: 2
+      applyLabels: []
+    clusterInfraAssessmentReports:
+      enabled: true
+      timeout: 2
+      applyLabels: []
+    clusterVulnerabilityReports:
+      enabled: true
+      timeout: 2
+      applyLabels: []
+
+  nodeSelector:
+    nodegroup-role: main

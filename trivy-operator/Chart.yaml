@@ -1,0 +1,9 @@
+apiVersion: v2
+name: trivy-operator
+description: This Chart deploys Trivy Operator to your cluster.
+version: 0.23.3
+type: application
+dependencies:
+  - name: trivy-operator
+    version: 0.23.3
+    repository: https://aquasecurity.github.io/helm-charts
